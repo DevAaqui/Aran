@@ -1,10 +1,14 @@
 import { Router } from 'express';
+import { type } from 'os';
 
 import {Todo} from '../model/todosModel'
 
 const router = Router()
 
 const todos: Todo[] = []
+
+type RequestBody = {text:string}
+type RequestParams = {todoId:string}
 
 router.get('/', (req,res,next)=> {
     return res.status(200).json({todos:todos})
@@ -20,10 +24,13 @@ router.post('/todo', (req,res,next)=> {
 })
 
 router.put('/todo/:todoId', (req,res,next)=> {
-    const todoId = req.params.todoId
+    const params = req.params as RequestParams
+
+    const todoId = params.todoId
+    const body = req.body as RequestBody
     const todoIndex = todos.findIndex(todoItem=> todoItem.id === todoId)
     if(todoIndex>-1){
-        todos[todoIndex] = {id: new Date().toISOString(), text: req.body.text}
+        todos[todoIndex] = {id: new Date().toISOString(), text: body.text}
         return res.status(200).json({message: 'TODO UPDATED', todos: todos})
     }
     else{
@@ -32,7 +39,9 @@ router.put('/todo/:todoId', (req,res,next)=> {
 })
 
 router.delete('/todo/:todoId', (req,res,next)=> {
-    const todoId = req.params.todoId
+    const params = req.params as RequestParams
+    
+    const todoId = params.todoId
 
     const array = todos.filter((todoItem) => todoItem.id !== todoId)
     if(array){
